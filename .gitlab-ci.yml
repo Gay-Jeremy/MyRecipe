@@ -11,14 +11,14 @@ cache:
 
 test:
   stage: test
-  image: eclipse-temurin:17
+  image: eclipse-temurin:25
   script:
     - chmod +x mvnw
     - ./mvnw test
 
 package:
   stage: package
-  image: eclipse-temurin:17
+  image: eclipse-temurin:25
   script:
     - chmod +x mvnw
     - ./mvnw clean package

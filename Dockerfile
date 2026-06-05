@@ -1,10 +1,17 @@
-FROM eclipse-temurin:25-jre 
+FROM maven:3.9-eclipse-temurin-25 AS build
 
-RUN apt-get update && apt-get install -y wget
- 
+WORKDIR /workspace
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+FROM eclipse-temurin:25-jre
+
 WORKDIR /app
 
-COPY target/MyRecipeAPI-1.0-SNAPSHOT.jar app.jar
+COPY --from=build /workspace/target/*.jar app.jar
 
 EXPOSE 8080
 

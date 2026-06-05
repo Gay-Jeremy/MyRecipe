@@ -65,7 +65,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Buildimage
-        run: dockerbuild-t${{ secrets.DOCKERHUB_USERNAME }}/myrecipe-api:${{ github.sha }}.
+        run: dockerbuild -t ${{ secrets.DOCKERHUB_USERNAME }}/myrecipe-api:${{ github.sha }}.
 
       - name: Pushimage
         run: dockerpush${{secrets.DOCKERHUB_USERNAME}}/myrecipe-api:${{github.sha}}

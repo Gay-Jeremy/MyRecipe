@@ -2,170 +2,120 @@
 
 # MyRecipeAPI
 
-API REST développée avec Spring Boot permettant la gestion de recettes de cuisine et de leurs ingrédients.
-
-## Présentation
-
-MyRecipeAPI est une application backend développée en Java avec Spring Boot. Elle expose une API REST permettant de gérer des recettes et des ingrédients via des opérations CRUD (Create, Read, Update, Delete).
-
-Le projet utilise PostgreSQL comme base de données relationnelle et Spring Data JPA pour la persistance des données.
+API REST développée avec Spring Boot permettant la gestion d'ingrédients pour une application de recettes.
 
 ## Technologies utilisées
 
-### Backend
-
-* Java
-* Spring Boot
-* Spring Web
+* Java 25
+* Spring Boot 4
 * Spring Data JPA
-* PostgreSQL
-* Lombok
-
-### Documentation
-
-* OpenAPI / Swagger
-
-### Tests
-
-* JUnit
-* Mockito
-
-### DevOps
-
-* Docker
-* Docker Compose
-* GitHub Actions
+* PostgreSQL 17
+* Hibernate
 * Maven
-
----
-
-## Architecture du projet
-
-```text
-Controller
-    ↓
-Repository (DAO)
-    ↓
-JPA / Hibernate
-    ↓
-PostgreSQL
-```
-
-### Structure
-
-```text
-src/main/java/com/locMns
-
-├── controller
-│   └── IngredientController
-│
-├── dao
-│   ├── IngredientDao
-│   ├── RecetteDao
-│   ├── RoleDao
-│   └── UtilisateurDao
-│
-├── model
-│   ├── Ingredient
-│   ├── Recette
-│   ├── Role
-│   └── Utilisateur
-│
-└── App.java
-```
+* Docker & Docker Compose
+* Swagger / OpenAPI
+* Adminer
 
 ---
 
 ## Fonctionnalités
 
-### Gestion des ingrédients
+### Ingrédients
 
-* Récupération de tous les ingrédients
-* Récupération d'un ingrédient par identifiant
-* Création d'un ingrédient
-* Modification d'un ingrédient
-* Suppression d'un ingrédient
-
-### Gestion des recettes
-
-* Création de recettes
-* Consultation des recettes
-* Modification des recettes
-* Suppression des recettes
+| Méthode | Endpoint                | Description                                 |
+| ------- | ----------------------- | ------------------------------------------- |
+| GET     | `/api/ingredient/liste` | Récupérer tous les ingrédients              |
+| GET     | `/api/ingredient/{id}`  | Récupérer un ingrédient par son identifiant |
+| POST    | `/api/ingredient`       | Créer un ingrédient                         |
+| PUT     | `/api/ingredient/{id}`  | Modifier un ingrédient                      |
+| DELETE  | `/api/ingredient/{id}`  | Supprimer un ingrédient                     |
 
 ---
 
-## Installation
+## Lancement en local
 
 ### Prérequis
 
 * Java 25
-* Maven
-* PostgreSQL
-* Docker (optionnel)
+* Maven 3.9+
+* PostgreSQL 17
 
----
-
-### Cloner le projet
+### Installation
 
 ```bash
-git clone <url-du-repository>
+git clone <repository-url>
 cd MyRecipeAPI
 ```
 
----
-
 ### Configuration
 
-Créer un fichier `.env` à partir du modèle fourni :
+Créer un fichier `.env` :
 
-```bash
-cp .example.env .env
+```env
+SPRING_PROFILES_ACTIVE=prod
+
+SERVER_PORT=8080
+
+DB_URL=jdbc:postgresql://localhost:5432/dataBase
+DB_USERNAME=root
+DB_PASSWORD=root
+
+POSTGRES_DB=dataBase
+POSTGRES_USER=root
+POSTGRES_PASSWORD=root
 ```
 
-Configurer les variables de connexion PostgreSQL.
-
----
-
-### Lancer PostgreSQL avec Docker
-
-```bash
-docker compose up -d
-```
-
----
-
-### Démarrer l'application
-
-```bash
-mvn spring-boot:run
-```
-
----
-
-## Construction du projet
+### Compilation
 
 ```bash
 mvn clean package
 ```
 
-Le fichier généré sera disponible dans :
-
-```text
-target/MyRecipeAPI-1.0-SNAPSHOT.jar
-```
-
-Exécution :
+### Exécution
 
 ```bash
 java -jar target/MyRecipeAPI-1.0-SNAPSHOT.jar
 ```
 
+L'application sera disponible sur :
+
+```text
+http://localhost:8080
+```
+
 ---
 
-## Documentation Swagger
+## Lancement avec Docker
 
-Une fois l'application démarrée :
+### Construction et démarrage
+
+```bash
+docker compose up -d --build
+```
+
+### Vérification
+
+```bash
+docker ps
+```
+
+### Arrêt
+
+```bash
+docker compose down
+```
+
+---
+
+## Services disponibles
+
+### API
+
+```text
+http://localhost:8080
+```
+
+### Swagger UI
 
 ```text
 http://localhost:8080/swagger-ui.html
@@ -177,87 +127,82 @@ ou
 http://localhost:8080/swagger-ui/index.html
 ```
 
----
+### OpenAPI
 
-## Exemple d'API
-
-### Récupérer tous les ingrédients
-
-```http
-GET /api/ingredient/liste
+```text
+http://localhost:8080/v3/api-docs
 ```
 
-### Récupérer un ingrédient
+### Adminer
 
-```http
-GET /api/ingredient/{id}
+```text
+http://localhost:8081
 ```
 
-### Créer un ingrédient
+Paramètres de connexion :
 
-```http
-POST /api/ingredient
-Content-Type: application/json
-
-{
-  "libelle": "Tomate"
-}
-```
-
-### Modifier un ingrédient
-
-```http
-PUT /api/ingredient/{id}
-```
-
-### Supprimer un ingrédient
-
-```http
-DELETE /api/ingredient/{id}
+```text
+Système : PostgreSQL
+Serveur : db
+Base : dataBase
+Utilisateur : root
+Mot de passe : root
 ```
 
 ---
 
-## Base de données
+## Structure du projet
 
-Le projet repose sur PostgreSQL.
-
-Entités principales :
-
-### Ingredient
-
-| Champ   | Type    |
-| ------- | ------- |
-| id      | Integer |
-| libelle | String  |
-
-### Recette
-
-| Champ       | Type    |
-| ----------- | ------- |
-| id          | Integer |
-| titre       | String  |
-| description | String  |
-| ustensile   | String  |
-| image       | String  |
-| etape       | String  |
+```text
+src/
+├── main/
+│   ├── java/com/locMns/
+│   │   ├── controller/
+│   │   ├── dao/
+│   │   ├── model/
+│   │   └── App.java
+│   └── resources/
+└── test/
+```
 
 ---
 
-## Pipeline CI/CD
+## Variables d'environnement
 
-Le projet intègre GitHub Actions afin de :
+| Variable               | Description             |
+| ---------------------- | ----------------------- |
+| SPRING_PROFILES_ACTIVE | Profil Spring actif     |
+| SERVER_PORT            | Port de l'application   |
+| DB_URL                 | URL PostgreSQL          |
+| DB_USERNAME            | Utilisateur PostgreSQL  |
+| DB_PASSWORD            | Mot de passe PostgreSQL |
+| POSTGRES_DB            | Nom de la base          |
+| POSTGRES_USER          | Utilisateur PostgreSQL  |
+| POSTGRES_PASSWORD      | Mot de passe PostgreSQL |
 
-* lancer les tests automatisés ;
-* construire l'application Maven ;
-* construire les images Docker ;
-* préparer le déploiement.
+---
+
+## Déploiement
+
+Le projet peut être déployé automatiquement via GitHub Actions :
+
+1. Build Maven
+2. Construction de l'image Docker
+3. Push sur Docker Hub
+4. Déploiement via SSH sur le serveur
+
+Secrets GitHub requis :
+
+* SERVER_HOST
+* SERVER_USER
+* SERVER_SSH_KEY
+* REGISTRY_USER
+* REGISTRY_TOKEN
 
 ---
 
 ## Auteur
 
-Projet réalisé dans le cadre d'un apprentissage DevOps.
+Jeremy Gay
 
----
 

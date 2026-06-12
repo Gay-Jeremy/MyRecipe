@@ -93,9 +93,25 @@ jobs:
           username: ${{ vars.SERVER_USER }}
           privateKey: ${{ secrets.SERVER_SSH_KEY}}
           command: |
-            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            set -e
+
+            echo "=== LOGIN ==="
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            echo "=== PULL IMAGE ==="
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myrecipe-api:latest
+
+            echo "=== STOP CONTAINER ==="
             docker stop myrecipe-api || true
+
+            echo "=== REMOVE CONTAINER ==="
             docker rm myrecipe-api || true
-            cd /opt/myrecipe
-            docker compose up -d
+
+            echo "=== CHECK COMPOSE FILE ==="
+            ls -la /opt/myrecipe
+
+            echo "=== COMPOSE VALIDATION ==="
+            docker compose -f /opt/myrecipe/docker-compose.yml config
+
+            echo "=== DEPLOY ==="
+            docker compose -f /opt/myrecipe/docker-compose.yml up -d

@@ -74,6 +74,8 @@ jobs:
     needs: docker-push
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Copy docker compose
         uses: garygrossgarten/github-action-scp@release
         with:

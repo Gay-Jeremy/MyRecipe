@@ -75,7 +75,7 @@ jobs:
 
     steps:
       - name: Deploy on server
-        uses: garygrossgarten/github-action-shh@release
+        uses: garygrossgarten/github-action-ssh@release
         with:
             command: |
               echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

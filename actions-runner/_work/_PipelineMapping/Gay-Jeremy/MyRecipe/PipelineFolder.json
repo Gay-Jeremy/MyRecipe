@@ -1,0 +1,12 @@
+﻿{
+  "repositoryName": "Gay-Jeremy/MyRecipe",
+  "pipelineDirectory": "MyRecipe",
+  "workspaceDirectory": "MyRecipe\\MyRecipe",
+  "repositories": {
+    "Gay-Jeremy/MyRecipe": {
+      "repositoryPath": "MyRecipe\\MyRecipe",
+      "lastRunOn": "06/12/2026 10:55:56 +02:00"
+    }
+  },
+  "lastRunOn": "06/12/2026 10:56:05 +02:00"
+}

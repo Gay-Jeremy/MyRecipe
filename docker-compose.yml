@@ -1,6 +1,6 @@
 services:
   api:
-    build: .
+    image: jeremygaydev/myrecipe-api:90b55d9b7d54c947d4ec21b03796c1410615f8dc
     container_name: myrecipe-api
     ports:
       - "8080:8080"

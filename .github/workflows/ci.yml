@@ -74,6 +74,8 @@ jobs:
     needs: docker-push
 
     steps:
+      - name: Debug SSH key
+        run: echo "${{ secrets.SERVER_SSH_KEY }}" | head -n 3
       - name: Deploy on server
         uses: garygrossgarten/github-action-ssh@release
         with:

@@ -2,13 +2,24 @@ name: Java CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        ports:
+          - 5432:5432
+        options:
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Checkout code
@@ -18,7 +29,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 25
+          java-version: 17
           cache: maven
 
       - name: Run tests
@@ -28,16 +39,14 @@ jobs:
 
       - name: Package application
         run: |
-              chmod +x mvnw
-              ./mvnw clean package
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: myrecipe-api-jar
-          path: target/*.jar
-
-
+          path: target/**.jar
 
   docker-build:
     runs-on: ubuntu-latest
@@ -48,7 +57,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t myrecipe-api:latest .
+        run: docker build -t myrecipe-api:${{ github.sha }} .
 
   docker-push:
     runs-on: ubuntu-latest
@@ -57,6 +66,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -64,10 +74,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/myrecipe-api:latest .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/myrecipe-api:${{ github.sha }} .
 
       - name: Push image
-        run: docker push ${{secrets.DOCKERHUB_USERNAME}}/myrecipe-api:latest
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/myrecipe-api:${{ github.sha }}
 
   deploy:
     runs-on: self-hosted
@@ -83,35 +93,19 @@ jobs:
           local: docker-compose.yml
           remote: /opt/myrecipe/docker-compose.yml
           host: ${{ secrets.SERVER_HOST }}
-          username: ${{ vars.SERVER_USER }}
+          username: ${{ secrets.SERVER_USER }}
           privateKey: ${{ secrets.SERVER_SSH_KEY }}
 
-      - name: deploy
+      - name: Deploy on server
         uses: garygrossgarten/github-action-ssh@release
         with:
           host: ${{ secrets.SERVER_HOST }}
-          username: ${{ vars.SERVER_USER }}
-          privateKey: ${{ secrets.SERVER_SSH_KEY}}
+          username: ${{ secrets.SERVER_USER }}
+          privateKey: ${{ secrets.SERVER_SSH_KEY }}
           command: |
-            set -e
-
-            echo "=== LOGIN ==="
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-
-            echo "=== PULL IMAGE ==="
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myrecipe-api:latest
-
-            echo "=== STOP CONTAINER ==="
+            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myrecipe-api:${{ github.sha }}
             docker stop myrecipe-api || true
-
-            echo "=== REMOVE CONTAINER ==="
             docker rm myrecipe-api || true
-
-            echo "=== CHECK COMPOSE FILE ==="
-            ls -la /opt/myrecipe
-
-            echo "=== COMPOSE VALIDATION ==="
-            docker compose -f /opt/myrecipe/docker-compose.yml config
-
-            echo "=== DEPLOY ==="
-            docker compose -f /opt/myrecipe/docker-compose.yml up -d
+            cd /opt/myrecipe
+            docker compose up -d
